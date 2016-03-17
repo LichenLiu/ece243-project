@@ -2,6 +2,7 @@
 # Input Argument
 # r4: GPIO address (JP1/JP2)
 # r5: timer address
+# r6: towards sensor 0/sensor 1
 
 # Callee-saved
 # r16: JP address
@@ -50,12 +51,7 @@ moveBarrierGate:
 	movia r18,INIT_CTL			# get the initial control setting
 	stwio r18,0(r16)			# initialize motor and sensor
 
-	# r4 is the same
-	mov r5,r0 					# check the value of touch sensor 0
-	call getTouchSensorValue
-
-	movui r18,0x000f 			# if the touch sensor 0 is fully off (not touched)
-	beq r18,r2,towards_sensor0  # move towards touch sensor 0
+	beq r0,r6,towards_sensor0  # move towards touch sensor 0
 	br towards_sensor1
 
 towards_sensor0: # assume CW motor direction
