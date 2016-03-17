@@ -3,7 +3,7 @@
 NIOSII - ASSEMBLY LANGUAGE PROJECT for DE1-SOC
 
 ************************************
-Use Standard Conventions to code!
+Use Standard Coding Conventions!
 ************************************
 
 Author: Shan Liang
