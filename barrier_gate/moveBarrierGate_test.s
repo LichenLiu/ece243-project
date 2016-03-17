@@ -16,10 +16,24 @@
 _start:
 	movia sp,VALUE_SP		# initialize the sp
 
+loop:
+	movia r4,100000000
+	movia r5,ADDR_TIMER
+	call delay					# call subroutine to delay
+
 	movia r4,ADDR_JP1
 	movia r5,ADDR_TIMER
+	movui r6,0
 	call moveBarrierGate
 
-loop:
+	movia r4,100000000
+	movia r5,ADDR_TIMER
+	call delay					# call subroutine to delay
+
+	movia r4,ADDR_JP1
+	movia r5,ADDR_TIMER
+	movui r6,1
+	call moveBarrierGate
+
 	br loop
 	
