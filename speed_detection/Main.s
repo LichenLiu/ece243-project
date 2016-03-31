@@ -33,6 +33,7 @@
 PASSED_FIRST_SENSOR: .space 4			# whether the moving object has passed the first sensor
 PASSED_SECOND_SENSOR: .space 4 			# whether the moving object has passed the first sensor
 
+SPEED_LIMIT: .space 4					# storing the speed limit
 ###############################################################################
 
 .section .text
@@ -50,6 +51,10 @@ init:
 	stw r0,0(r18)
 
 init_device:
+	call get_speed_limit 				# retrieve the speed limit
+	movia r18,SPEED_LIMIT 				# store the speed limit into SPEED_LIMIT
+	stw r2,0(r18)
+
 	call set_sensor_statemode 			# setup the light sensor
 										# interrpt enabled here
 
@@ -89,7 +94,8 @@ speed:
 	mov r21,r2 							# retrieve the returned value (measured speed)
 
 check_over_speed:
-	movia r20,PREDEFINED_SPEED_LIMIT
+	movia r20,SPEED_LIMIT 				# get the speed limit
+	ldw r20,0(r20)
 	bge r21,r20,overspeed
 	br legalspeed
 

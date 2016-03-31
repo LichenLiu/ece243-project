@@ -16,6 +16,7 @@
             <source_file filepath="true">set_sensor_statemode.s</source_file>
             <source_file filepath="true">start_timer.s</source_file>
             <source_file filepath="true">stop_timer.s</source_file>
+            <source_file filepath="true">get_speed_limit.s</source_file>
         </source_files>
         <options>
             <start_symbol>_start</start_symbol>
