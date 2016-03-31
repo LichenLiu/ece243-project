@@ -18,10 +18,9 @@
 .equ CYCLE_PER_SEC,100000000
 
 .equ DISTANCE_BETWEEN_LIGHTSENSOR,  50
-.equ PREDEFINED_SPEED_LIMIT, 1
 
 .equ ADDR_LED,0xff200000 				# for testing purpose
-
+.equ ADDR_HEXDISPLAY30, 0xFF200020		# for testing purpose
 ###############################################################################
 
 .section .data
@@ -51,6 +50,12 @@ init:
 	stw r0,0(r18)
 
 init_device:
+	movia r18, ADDR_LED 				# get the led address
+	stwio r0,0(r18) 					# turn off all LEDS
+
+	movia r18, ADDR_HEXDISPLAY30 		# get the 7seg display address
+	stwio r0,0(r18) 					# turn  off the 7seg display
+
 	call get_speed_limit 				# retrieve the speed limit
 	movia r18,SPEED_LIMIT 				# store the speed limit into SPEED_LIMIT
 	stw r2,0(r18)
