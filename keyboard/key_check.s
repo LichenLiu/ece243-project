@@ -19,21 +19,25 @@
 # r8 PS/2 base address
 # r9 temp register
 #######################
-.equ PS2addr, FF200100
+.equ PS2addr, 0xFF200100
+.global KeyboardHandler
 KeyboardHandler:
 movi r6, 0x0 # initialize the state bit 
 mov r7, r0 # number counter
 movia r8, PS2addr
-ldwio r9, 0(r8)
-srli r10,r9,16
-bgt r10,r0,keyboard_poll
+#ldwio r9, 0(r8)
+#srli r10,r9,16
+#bgt r10,r0,keyboard_poll
 #else 
-br keyboardHandler
+#br KeyboardHandler
 # will appear in every poll loop
 
 keyboard_poll:
-ldwio r9, 0(r8)
+ldwio r9, 0(r8) ###############
+andi r4,r9,0x00008000 #musk the valid bit
+beq r4,r0,keyboard_poll
 andi  r9,r9,0xff # data value in r9
+
 #check key0
 movi r5, 0x45
 beq r9,r5,key0
@@ -87,7 +91,7 @@ mov r6,r0
 br keyboard_poll
 key0_press:
 addi r7,r7,1
-addi sp,sp,0x4
+subi sp,sp,0x4
 movi r9,0x0
 stw r9,0(sp)
 br keyboard_poll
@@ -102,7 +106,7 @@ mov r6,r0
 br keyboard_poll
 key1_press:
 addi r7,r7,1
-addi sp,sp,0x4
+subi sp,sp,0x4
 movi r9,0x1
 stw r9,0(sp)
 br keyboard_poll
@@ -117,7 +121,7 @@ mov r6,r0
 br keyboard_poll
 key2_press:
 addi r7,r7,1
-addi sp,sp,0x4
+subi sp,sp,0x4
 movi r9,0x2
 stw r9,0(sp)
 br keyboard_poll
@@ -132,7 +136,7 @@ mov r6,r0
 br keyboard_poll
 key3_press:
 addi r7,r7,1
-addi sp,sp,0x4
+subi sp,sp,0x4
 movi r9,0x3
 stw r9,0(sp)
 br keyboard_poll
@@ -147,7 +151,7 @@ mov r6,r0
 br keyboard_poll
 key4_press:
 addi r7,r7,1
-addi sp,sp,0x4
+subi sp,sp,0x4
 movi r9,0x4
 stw r9,0(sp)
 br keyboard_poll
@@ -162,7 +166,7 @@ mov r6,r0
 br keyboard_poll
 key5_press:
 addi r7,r7,1
-addi sp,sp,0x4
+subi sp,sp,0x4
 movi r9,0x5
 stw r9,0(sp)
 br keyboard_poll
@@ -177,7 +181,7 @@ mov r6,r0
 br keyboard_poll
 key6_press:
 addi r7,r7,1
-addi sp,sp,0x4
+subi sp,sp,0x4
 movi r9,0x6
 stw r9,0(sp)
 br keyboard_poll
@@ -192,7 +196,7 @@ mov r6,r0
 br keyboard_poll
 key7_press:
 addi r7,r7,1
-addi sp,sp,0x4
+subi sp,sp,0x4
 movi r9,0x7
 stw r9,0(sp)
 br keyboard_poll
@@ -207,7 +211,7 @@ mov r6,r0
 br keyboard_poll
 key8_press:
 addi r7,r7,1
-addi sp,sp,0x4
+subi sp,sp,0x4
 movi r9,0x8
 stw r9,0(sp)
 br keyboard_poll
@@ -222,7 +226,7 @@ mov r6,r0
 br keyboard_poll
 key9_press:
 addi r7,r7,1
-addi sp,sp,0x4
+subi sp,sp,0x4
 movi r9,0x9
 stw r9,0(sp)
 br keyboard_poll
@@ -245,7 +249,7 @@ add r2,r2,r4
 muli r5,r5,0xa
 
 subi r7,r7,1
-subi sp,sp,4
+addi sp,sp,4
 
 br loop
 
