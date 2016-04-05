@@ -11,6 +11,7 @@
 #9 	46
 #Enter 5A
 #. 	49
+#BKSP 66
 #######################
 #######################
 # r5 temp register used to store the scancode 
@@ -24,7 +25,6 @@
 KeyboardHandler:
 movi r6, 0x0 # initialize the state bit 
 mov r7, r0 # number counter
-movia r8, PS2addr
 #ldwio r9, 0(r8)
 #srli r10,r9,16
 #bgt r10,r0,keyboard_poll
@@ -33,6 +33,7 @@ movia r8, PS2addr
 # will appear in every poll loop
 
 keyboard_poll:
+movia r8, PS2addr
 ldwio r9, 0(r8) ###############
 andi r4,r9,0x00008000 #musk the valid bit
 beq r4,r0,keyboard_poll
@@ -68,6 +69,9 @@ beq r9,r5,key8
 #check key 9
 movi r5, 0x46
 beq r9,r5,key9
+#check BKSP key
+movi r5, 0x66
+beq r9,r5,keyBKSP
 #check enter key
 movi r5, 0x5A
 beq r9,r5,keyEnter
@@ -94,6 +98,9 @@ addi r7,r7,1
 subi sp,sp,0x4
 movi r9,0x0
 stw r9,0(sp)
+mov r9,r7	#store size of input into r9
+movi r4,0x30 # move ascii code of '0' into r4
+call drawcharacter
 br keyboard_poll
 
 key1:
@@ -109,6 +116,9 @@ addi r7,r7,1
 subi sp,sp,0x4
 movi r9,0x1
 stw r9,0(sp)
+mov r9,r7	#store size of input into r9
+movi r4,0x31 # move ascii code of '1' into r4
+call drawcharacter
 br keyboard_poll
 
 key2:
@@ -124,6 +134,9 @@ addi r7,r7,1
 subi sp,sp,0x4
 movi r9,0x2
 stw r9,0(sp)
+mov r9,r7	#store size of input into r9
+movi r4,0x32 # move ascii code of '2' into r4
+call drawcharacter
 br keyboard_poll
 
 key3:
@@ -139,6 +152,9 @@ addi r7,r7,1
 subi sp,sp,0x4
 movi r9,0x3
 stw r9,0(sp)
+mov r9,r7	#store size of input into r9
+movi r4,0x33 # move ascii code of '3' into r4
+call drawcharacter
 br keyboard_poll
 
 key4:
@@ -154,6 +170,9 @@ addi r7,r7,1
 subi sp,sp,0x4
 movi r9,0x4
 stw r9,0(sp)
+mov r9,r7	#store size of input into r9
+movi r4,0x34 # move ascii code of '4' into r4
+call drawcharacter
 br keyboard_poll
 
 key5:
@@ -169,6 +188,9 @@ addi r7,r7,1
 subi sp,sp,0x4
 movi r9,0x5
 stw r9,0(sp)
+mov r9,r7	#store size of input into r9
+movi r4,0x35 # move ascii code of '5' into r4
+call drawcharacter
 br keyboard_poll
 
 key6:
@@ -184,6 +206,9 @@ addi r7,r7,1
 subi sp,sp,0x4
 movi r9,0x6
 stw r9,0(sp)
+mov r9,r7	#store size of input into r9
+movi r4,0x36 # move ascii code of '6' into r4
+call drawcharacter
 br keyboard_poll
 
 key7:
@@ -199,6 +224,9 @@ addi r7,r7,1
 subi sp,sp,0x4
 movi r9,0x7
 stw r9,0(sp)
+mov r9,r7	#store size of input into r9
+movi r4,0x37 # move ascii code of '7' into r4
+call drawcharacter
 br keyboard_poll
 
 key8:
@@ -214,6 +242,9 @@ addi r7,r7,1
 subi sp,sp,0x4
 movi r9,0x8
 stw r9,0(sp)
+mov r9,r7	#store size of input into r9
+movi r4,0x38 # move ascii code of '8' into r4
+call drawcharacter
 br keyboard_poll
 
 key9:
@@ -229,7 +260,27 @@ addi r7,r7,1
 subi sp,sp,0x4
 movi r9,0x9
 stw r9,0(sp)
+mov r9,r7	#store size of input into r9
+movi r4,0x39 # move ascii code of '9' into r4
+call drawcharacter
 br keyboard_poll
+
+keyBKSP:
+# check state bit it it is 0 flip the bit break state bit = 1
+# which means it is the last byte of the break signal
+beq r6,r0,keyBKSP_press
+#clear the state bit
+mov r6,r0
+br keyboard_poll
+keyBKSP_press:
+addi r7,r7,-1
+stw r0,0(sp)
+addi sp,sp,0x4
+mov r9,r7	#store size of input into r9
+mov r4,r0 # move ascii code of null into r4
+call drawcharacter
+br keyboard_poll
+
 #calculate the number value and return it in r2
 #discard the left break signal 
 #recover the stack 

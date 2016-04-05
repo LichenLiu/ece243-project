@@ -12,6 +12,7 @@
         <source_files>
             <source_file filepath="true">key_check.s</source_file>
             <source_file filepath="true">keyboard_test.s</source_file>
+            <source_file filepath="true">vga.s</source_file>
         </source_files>
         <options>
             <start_symbol>_start</start_symbol>
