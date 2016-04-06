@@ -14,303 +14,337 @@
 #BKSP 66
 #######################
 #######################
-# r5 temp register used to store the scancode 
-# r6 state register
-# r7 number of digits 
+# r10 temp register used to store the scancode 
+# r16 state register
+# r17 number of digits 
 # r8 PS/2 base address
-# r9 temp register
+# r9 temp register stores the 1 byte data in FIFO
+# r10 temp register stores the 1 byte scancode 
+
 #######################
 .equ PS2addr, 0xFF200100
 .global KeyboardHandler
 KeyboardHandler:
 
-addi sp,sp,-4
+# save return address
+
+#######prelogue#######
+addi sp,sp,-20
 stw ra,0(sp)
+stw r16,4(sp)
+stw r17,8(sp)
+stw r18,12(sp)
+stw r19,16(sp)
 
-mov r6, r0 # initialize the state bit 
-mov r7, r0 # number counter
+mov r16, r0 # initialize the state bit 
+mov r17, r0 # number counter
+mov r18, r0
+mov r19, r0
 mov r2, r0
-#ldwio r9, 0(r8)
-#srli r10,r9,16
-#bgt r10,r0,keyboard_poll
-#else 
-#br KeyboardHandler
-# will appear in every poll loop
 
+################################
 keyboard_poll:
 movia r8, PS2addr
 ldwio r9, 0(r8) ###############
-andi r4,r9,0x00008000 #musk the valid bit
-beq r4,r0,keyboard_poll
+andi r10,r9,0x00008000 #musk the valid bit
+beq r10,r0,keyboard_poll
 andi  r9,r9,0xff # data value in r9
 
 #check key0
-movi r5, 0x45
-beq r9,r5,key0
+movi r10, 0x45
+beq r9,r10,key0
 # check key1
-movi r5, 0x16
-beq r9,r5,key1
+movi r10, 0x16
+beq r9,r10,key1
 # check key2
-movi r5, 0x1E
-beq r9,r5,key2
+movi r10, 0x1E
+beq r9,r10,key2
 #check key3
-movi r5, 0x26
-beq r9,r5,key3
+movi r10, 0x26
+beq r9,r10,key3
 #check key4
-movi r5, 0x25
-beq r9,r5,key4
+movi r10, 0x25
+beq r9,r10,key4
 #check key 5
-movi r5, 0x2E
-beq r9,r5,key5
+movi r10, 0x2E
+beq r9,r10,key5
 #check key 6
-movi r5, 0x36
-beq r9,r5,key6
+movi r10, 0x36
+beq r9,r10,key6
 #check key 7
-movi r5, 0x3D
-beq r9,r5,key7
+movi r10, 0x3D
+beq r9,r10,key7
 #check key 8
-movi r5, 0x3E
-beq r9,r5,key8
+movi r10, 0x3E
+beq r9,r10,key8
 #check key 9
-movi r5, 0x46
-beq r9,r5,key9
+movi r10, 0x46
+beq r9,r10,key9
 #check BKSP key
-movi r5, 0x66
-beq r9,r5,keyBKSP
+movi r10, 0x66
+beq r9,r10,keyBKSP
 #check enter key
-movi r5, 0x5A
-beq r9,r5,keyEnter
+movi r10, 0x5A
+beq r9,r10,keyEnter
 
-movi r5,0x0F
-beq r9, r5, breakSig
+movi r10,0x0F
+beq r9, r10, breakSig
 
-# use r6 as state flag
-# use r7 as number counter
+# use r16 as state flag
+# use r17 as number counter
 breakSig:
-movi r6,0x1
+movi r16,0x1
 br keyboard_poll
 
 key0:
 # check state bit it it is 0 flip the bit break state bit = 1
 # which means it is the last byte of the break signal
-beq r6,r0,key0_press
+beq r16,r0,key0_press
 #clear the state bit
-mov r6,r0
+mov r16,r0
 #################
 br keyboard_poll
 key0_press:
-addi r7,r7,1
+movi r12,0x9 # max size of the input 9 digit 
+bge r17,r12,keyboard_poll # 
+addi r17,r17,1
 subi sp,sp,0x4
 movi r9,0x0
 stw r9,0(sp)
-mov r9,r7	#store size of input into r9
 movi r4,0x30 # move ascii code of '0' into r4
+mov r5,r17 # move number of count into parameter register r5
 call drawcharacter
 br keyboard_poll
 
 key1:
 # check state bit it it is 0 flip the bit break state bit = 1
 # which means it is the last byte of the break signal
-beq r6,r0,key1_press
+beq r16,r0,key1_press
 #clear the state bit
-mov r6,r0
+mov r16,r0
 #################
 br keyboard_poll
 key1_press:
-addi r7,r7,1
+movi r12,0x9 # max size of the input 9 digit 
+bge r17,r12,keyboard_poll # 
+addi r17,r17,1
 subi sp,sp,0x4
 movi r9,0x1
 stw r9,0(sp)
-mov r9,r7	#store size of input into r9
 movi r4,0x31 # move ascii code of '1' into r4
+mov r5,r17 # move number of count into parameter register r5
 call drawcharacter
 br keyboard_poll
 
 key2:
 # check state bit it it is 0 flip the bit break state bit = 1
 # which means it is the last byte of the break signal
-beq r6,r0,key2_press
+beq r16,r0,key2_press
 #clear the state bit
-mov r6,r0
+mov r16,r0
 #################
 br keyboard_poll
 key2_press:
-addi r7,r7,1
+movi r12,0x9 # max size of the input 9 digit 
+bge r17,r12,keyboard_poll # 
+addi r17,r17,1
 subi sp,sp,0x4
 movi r9,0x2
 stw r9,0(sp)
-mov r9,r7	#store size of input into r9
 movi r4,0x32 # move ascii code of '2' into r4
+mov r5,r17 # move number of count into parameter register r5
 call drawcharacter
 br keyboard_poll
 
 key3:
 # check state bit it it is 0 flip the bit break state bit = 1
 # which means it is the last byte of the break signal
-beq r6,r0,key3_press
+beq r16,r0,key3_press
 #clear the state bit
-mov r6,r0
+mov r16,r0
 #################
 br keyboard_poll
 key3_press:
-addi r7,r7,1
+movi r12,0x9 # max size of the input 9 digit 
+bge r17,r12,keyboard_poll # 
+addi r17,r17,1
 subi sp,sp,0x4
 movi r9,0x3
 stw r9,0(sp)
-mov r9,r7	#store size of input into r9
 movi r4,0x33 # move ascii code of '3' into r4
+mov r5,r17 # move number of count into parameter register r5
 call drawcharacter
 br keyboard_poll
 
 key4:
 # check state bit it it is 0 flip the bit break state bit = 1
 # which means it is the last byte of the break signal
-beq r6,r0,key4_press
+beq r16,r0,key4_press
 #clear the state bit
-mov r6,r0
+mov r16,r0
 #################
 br keyboard_poll
 key4_press:
-addi r7,r7,1
+movi r12,0x9 # max size of the input 9 digit 
+bge r17,r12,keyboard_poll # 
+addi r17,r17,1
 subi sp,sp,0x4
 movi r9,0x4
 stw r9,0(sp)
-mov r9,r7	#store size of input into r9
 movi r4,0x34 # move ascii code of '4' into r4
+mov r5,r17 # move number of count into parameter register r5
 call drawcharacter
 br keyboard_poll
 
 key5:
 # check state bit it it is 0 flip the bit break state bit = 1
 # which means it is the last byte of the break signal
-beq r6,r0,key5_press
+beq r16,r0,key5_press
 #clear the state bit
-mov r6,r0
+mov r16,r0
 #################
 br keyboard_poll
 key5_press:
-addi r7,r7,1
+movi r12,0x9 # max size of the input 9 digit 
+bge r17,r12,keyboard_poll # 
+addi r17,r17,1
 subi sp,sp,0x4
 movi r9,0x5
 stw r9,0(sp)
-mov r9,r7	#store size of input into r9
 movi r4,0x35 # move ascii code of '5' into r4
+mov r5,r17 # move number of count into parameter register r5
 call drawcharacter
 br keyboard_poll
 
 key6:
 # check state bit it it is 0 flip the bit break state bit = 1
 # which means it is the last byte of the break signal
-beq r6,r0,key6_press
+beq r16,r0,key6_press
 #clear the state bit
-mov r6,r0
+mov r16,r0
 #################
 br keyboard_poll
 key6_press:
-addi r7,r7,1
+movi r12,0x9 # max size of the input 9 digit 
+bge r17,r12,keyboard_poll # 
+addi r17,r17,1
 subi sp,sp,0x4
 movi r9,0x6
 stw r9,0(sp)
-mov r9,r7	#store size of input into r9
 movi r4,0x36 # move ascii code of '6' into r4
+mov r5,r17 # move number of count into parameter register r5
 call drawcharacter
 br keyboard_poll
 
 key7:
 # check state bit it it is 0 flip the bit break state bit = 1
 # which means it is the last byte of the break signal
-beq r6,r0,key7_press
+beq r16,r0,key7_press
 #clear the state bit
-mov r6,r0
+mov r16,r0
 #################
 br keyboard_poll
 key7_press:
-addi r7,r7,1
+movi r12,0x9 # max size of the input 9 digit 
+bge r17,r12,keyboard_poll # 
+addi r17,r17,1
 subi sp,sp,0x4
 movi r9,0x7
 stw r9,0(sp)
-mov r9,r7	#store size of input into r9
 movi r4,0x37 # move ascii code of '7' into r4
+mov r5,r17 # move number of count into parameter register r5
 call drawcharacter
 br keyboard_poll
 
 key8:
 # check state bit it it is 0 flip the bit break state bit = 1
 # which means it is the last byte of the break signal
-beq r6,r0,key8_press
+beq r16,r0,key8_press
 #clear the state bit
-mov r6,r0
+mov r16,r0
 #################
 br keyboard_poll
 key8_press:
-addi r7,r7,1
+movi r12,0x9 # max size of the input 9 digit 
+bge r17,r12,keyboard_poll # 
+addi r17,r17,1
 subi sp,sp,0x4
 movi r9,0x8
 stw r9,0(sp)
-mov r9,r7	#store size of input into r9
 movi r4,0x38 # move ascii code of '8' into r4
+mov r5,r17 # move number of count into parameter register r5
 call drawcharacter
 br keyboard_poll
 
 key9:
 # check state bit it it is 0 flip the bit break state bit = 1
 # which means it is the last byte of the break signal
-beq r6,r0,key9_press
+beq r16,r0,key9_press
 #clear the state bit
-mov r6,r0
+mov r16,r0
 #################
 br keyboard_poll
 key9_press:
-addi r7,r7,1
+movi r12,0x9 # max size of the input 9 digit 
+bge r17,r12,keyboard_poll # 
+addi r17,r17,1
 subi sp,sp,0x4
 movi r9,0x9
 stw r9,0(sp)
-mov r9,r7	#store size of input into r9
 movi r4,0x39 # move ascii code of '9' into r4
+mov r5,r17 # move number of count into parameter register r5
 call drawcharacter
 br keyboard_poll
 
 keyBKSP:
 # check state bit it it is 0 flip the bit break state bit = 1
 # which means it is the last byte of the break signal
-beq r6,r0,keyBKSP_press
+beq r16,r0,keyBKSP_press
 #clear the state bit
-mov r6,r0
+mov r16,r0
 br keyboard_poll
 keyBKSP_press:
-addi r7,r7,-1
+#addi r17,r17,-1 //r17 should stay the same
 stw r0,0(sp)
 addi sp,sp,0x4
-mov r9,r7	#store size of input into r9
 mov r4,r0 # move ascii code of null into r4
+mov r5,r17 # move number of count into parameter register r5
 call drawcharacter
 br keyboard_poll
 
 #calculate the number value and return it in r2
 #discard the left break signal 
 #recover the stack 
-#here use r5 store the order of the each
+#here use r10 store the order of the each
 #r2 as the final result
 
 
 keyEnter:
-beq r7,r0,keyboard_poll #if there hasn't a input yet
+beq r17,r0,keyboard_poll #if there hasn't a input yet
 #else 
-movi r5,0x1;
+movi r10,0x1;
 loop:
-ble r7,r0,RET
-ldw r4, 0(sp) #use r4 store the single digit
-mul r4,r4,r5
-add r2,r2,r4
-muli r5,r5,0xa
-
-subi r7,r7,1
+ble r18,r0,RET
+######################
+ldw r18, 0(sp) #use r18 store the single digit
+mul r18,r18,r10
+add r2,r2,r18
+muli r10,r10,0xa
+######################
+subi r18,r17,1
 addi sp,sp,4
-
+mov r4,r0
+addi r19,r19,1
+mov r5,r19
 br loop
 
 RET:
-	ldw ra,0(sp)
-	addi sp,sp,4
+
 	
-	ret
+	ldw r16,0(sp)
+	ldw r17,4(sp)
+	ldw r18,8(sp)
+	ldw r19,12(sp)
+	ldw ra,16(sp)
+	addi sp,sp,20
+ret

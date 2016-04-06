@@ -36,8 +36,8 @@ movia r8, ADDR_CHAR
 movi r16, 37				# initialize x coordinate
 movi r17, 29				# initialize y coordinate
 
-subi r9,r9,1
-add r17,r17,r9				# update y coordinates based on current number size
+subi r5,r5,1
+add r16,r16,r5				# update x coordinates based on current number size
 muli r17, r17,128			# calculate address offset
 add r18,r16,r17	
 add r8,r18,r8		
